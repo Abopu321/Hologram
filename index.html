@@ -1,0 +1,1077 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WordBank - Bangla/English Dictionary</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --primary-light: #e0e7ff;
+            --background: #f8fafc;
+            --card: #ffffff;
+            --text: #1e293b;
+            --text-light: #64748b;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --error: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --radius: 0.5rem;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --transition: all 0.3s ease;
+        }
+
+        .dark {
+            --primary: #818cf8;
+            --primary-hover: #6366f1;
+            --primary-light: #312e81;
+            --background: #0f172a;
+            --card: #1e293b;
+            --text: #f1f5f9;
+            --text-light: #94a3b8;
+            --border: #334155;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text);
+            min-height: 100vh;
+            transition: var(--transition);
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        header {
+            text-align: center;
+            padding: 2rem 1rem;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+            border-radius: var(--radius);
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+            color: white;
+        }
+
+        header::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+            animation: pulse 15s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: translate(0, 0) scale(1);
+                opacity: 0.3;
+            }
+            50% {
+                transform: translate(5%, 5%) scale(1.05);
+                opacity: 0.5;
+            }
+            100% {
+                transform: translate(0, 0) scale(1);
+                opacity: 0.3;
+            }
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+            position: relative;
+            z-index: 1;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            position: relative;
+            z-index: 1;
+            opacity: 0.9;
+        }
+
+        .theme-toggle {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            transition: var(--transition);
+            z-index: 10;
+        }
+
+        .theme-toggle:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: rotate(15deg);
+        }
+
+        .search-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            background-color: var(--card);
+            padding: 1.5rem;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .search-container::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--info), var(--success), var(--warning), var(--error));
+            background-size: 500% 100%;
+            animation: gradientBorder 10s linear infinite;
+        }
+
+        @keyframes gradientBorder {
+            0% { background-position: 0% 0%; }
+            100% { background-position: 100% 0%; }
+        }
+
+        .language-toggle {
+            display: flex;
+            background-color: var(--border);
+            border-radius: 2rem;
+            overflow: hidden;
+            width: fit-content;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+            padding: 0.25rem;
+        }
+
+        .toggle-btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: var(--transition);
+            border-radius: 1.5rem;
+            position: relative;
+            z-index: 2;
+            color: var(--text);
+        }
+
+        .toggle-btn.active {
+            background-color: var(--primary);
+            color: white;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .search-row {
+            display: flex;
+            gap: 0.75rem;
+            position: relative;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 0.9rem 1.2rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            font-size: 1rem;
+            outline: none;
+            transition: var(--transition);
+            background-color: var(--card);
+            color: var(--text);
+        }
+
+        .search-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-light);
+        }
+
+        .search-button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: var(--radius);
+            padding: 0.9rem 1.75rem;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .search-button:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-2px);
+        }
+
+        .search-button:active {
+            transform: translateY(0);
+        }
+
+        .search-button i {
+            font-size: 0.9rem;
+        }
+
+        .history-section {
+            margin-top: 1rem;
+        }
+
+        .history-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        .clear-history {
+            background: none;
+            border: none;
+            color: var(--primary);
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: var(--transition);
+        }
+
+        .clear-history:hover {
+            color: var(--primary-hover);
+            text-decoration: underline;
+        }
+
+        .history-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .history-tag {
+            background-color: var(--primary-light);
+            color: var(--primary);
+            border: none;
+            border-radius: 1rem;
+            padding: 0.4rem 0.8rem;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .history-tag:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .results-container {
+            background-color: var(--card);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            min-height: 200px;
+        }
+
+        .result-item {
+            padding: 1.25rem;
+            border-bottom: 1px solid var(--border);
+            transition: var(--transition);
+            border-radius: var(--radius);
+            margin-bottom: 1rem;
+            animation: fadeIn 0.5s ease-out;
+            position: relative;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-item:hover {
+            background-color: var(--primary-light);
+            transform: translateY(-2px);
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        .word {
+            font-size: 1.75rem;
+            font-weight: bold;
+            margin-bottom: 0.75rem;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .word-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .word-action-btn {
+            background: none;
+            border: none;
+            color: var(--text-light);
+            cursor: pointer;
+            font-size: 1rem;
+            transition: var(--transition);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .word-action-btn:hover {
+            background-color: var(--border);
+            color: var(--primary);
+        }
+
+        .word-action-btn.favorite.active {
+            color: #f59e0b;
+        }
+
+        .translation {
+            font-size: 1.4rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .part-of-speech {
+            display: inline-block;
+            color: var(--text-light);
+            font-style: italic;
+            margin-bottom: 0.75rem;
+            background-color: var(--border);
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.85rem;
+        }
+
+        .example {
+            color: var(--text-light);
+            margin-top: 0.75rem;
+            font-size: 0.95rem;
+            padding-left: 1rem;
+            border-left: 3px solid var(--primary-light);
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: var(--text-light);
+            font-size: 1.1rem;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: var(--text-light);
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 50px;
+            height: 50px;
+            border: 3px solid var(--border);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .tab {
+            padding: 0.75rem 1.5rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            color: var(--text-light);
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .tab.active {
+            color: var(--primary);
+            font-weight: 500;
+        }
+
+        .tab.active::after {
+            content: "";
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: var(--primary);
+        }
+
+        .favorites-container {
+            display: none;
+        }
+
+        .favorites-container.active {
+            display: block;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .search-results-container.active {
+            display: block;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .search-results-container {
+            display: none;
+        }
+
+        .empty-favorites {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: var(--text-light);
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 3rem;
+            padding: 1.5rem;
+            color: var(--text-light);
+            font-size: 0.9rem;
+            border-top: 1px solid var(--border);
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.25rem;
+            }
+            
+            .search-row {
+                flex-direction: column;
+            }
+            
+            .word {
+                font-size: 1.5rem;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+            
+            .word-actions {
+                align-self: flex-end;
+            }
+            
+            .translation {
+                font-size: 1.2rem;
+            }
+        }
+
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 120px;
+            background-color: var(--text);
+            color: white;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -60px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.8rem;
+        }
+
+        .tooltip .tooltiptext::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: var(--text) transparent transparent transparent;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: var(--success);
+            color: white;
+            padding: 1rem;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            z-index: 1000;
+            transform: translateX(150%);
+            transition: transform 0.3s ease-out;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.error {
+            background-color: var(--error);
+        }
+
+        .notification.info {
+            background-color: var(--info);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <button id="theme-toggle" class="theme-toggle">
+                <i class="fas fa-moon"></i>
+            </button>
+            <h1>WordBank</h1>
+            <p class="subtitle">Bangla-English Dictionary</p>
+        </header>
+
+        <div class="search-container">
+            <div class="language-toggle">
+                <button class="toggle-btn active" id="bn-to-en">Bangla → English</button>
+                <button class="toggle-btn" id="en-to-bn">English → Bangla</button>
+            </div>
+            <div class="search-row">
+                <input type="text" id="search-input" class="search-input" placeholder="Type a Bangla word to search...">
+                <button id="search-button" class="search-button">
+                    <i class="fas fa-search"></i>
+                    Search
+                </button>
+            </div>
+            <div class="history-section" id="history-section">
+                <div class="history-title">
+                    <span>Recent Searches</span>
+                    <button id="clear-history" class="clear-history">Clear All</button>
+                </div>
+                <div class="history-tags" id="history-tags">
+                    <!-- History tags will be added here dynamically -->
+                </div>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" id="search-tab">Search Results</button>
+            <button class="tab" id="favorites-tab">Favorites</button>
+        </div>
+
+        <div class="results-container">
+            <div id="search-results" class="search-results-container active">
+                <div class="no-results">
+                    Search for a word to see results
+                </div>
+            </div>
+            <div id="favorites-results" class="favorites-container">
+                <div class="empty-favorites">
+                    You haven't added any favorites yet
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>WordBank Dictionary © 2025 | A comprehensive Bangla-English dictionary</p>
+        </div>
+    </div>
+
+    <div class="notification" id="notification">
+        <i class="fas fa-check-circle"></i>
+        <span id="notification-message">Word added to favorites</span>
+    </div>
+
+    <script>
+        // DOM Elements
+        const searchInput = document.getElementById('search-input');
+        const searchButton = document.getElementById('search-button');
+        const searchResults = document.getElementById('search-results');
+        const favoritesResults = document.getElementById('favorites-results');
+        const bnToEnButton = document.getElementById('bn-to-en');
+        const enToBnButton = document.getElementById('en-to-bn');
+        const themeToggle = document.getElementById('theme-toggle');
+        const themeIcon = themeToggle.querySelector('i');
+        const historyTags = document.getElementById('history-tags');
+        const clearHistoryButton = document.getElementById('clear-history');
+        const searchTab = document.getElementById('search-tab');
+        const favoritesTab = document.getElementById('favorites-tab');
+        const notification = document.getElementById('notification');
+        const notificationMessage = document.getElementById('notification-message');
+
+        // State
+        let dictionary = [];
+        let searchMode = 'bn-to-en'; // 'bn-to-en' or 'en-to-bn'
+        let searchHistory = [];
+        let favorites = [];
+        let isDarkMode = false;
+
+        // Load data from localStorage
+        function loadFromLocalStorage() {
+            // Load search history
+            const storedHistory = localStorage.getItem('wordbank_history');
+            if (storedHistory) {
+                searchHistory = JSON.parse(storedHistory);
+                renderHistoryTags();
+            }
+
+            // Load favorites
+            const storedFavorites = localStorage.getItem('wordbank_favorites');
+            if (storedFavorites) {
+                favorites = JSON.parse(storedFavorites);
+            }
+
+            // Load theme preference
+            const storedTheme = localStorage.getItem('wordbank_theme');
+            if (storedTheme === 'dark') {
+                isDarkMode = true;
+                document.body.classList.add('dark');
+                themeIcon.classList.remove('fa-moon');
+                themeIcon.classList.add('fa-sun');
+            }
+        }
+
+        // Save data to localStorage
+        function saveToLocalStorage() {
+            // Save search history
+            localStorage.setItem('wordbank_history', JSON.stringify(searchHistory));
+            
+            // Save favorites
+            localStorage.setItem('wordbank_favorites', JSON.stringify(favorites));
+            
+            // Save theme preference
+            localStorage.setItem('wordbank_theme', isDarkMode ? 'dark' : 'light');
+        }
+
+        // Fetch dictionary data
+        async function fetchDictionary() {
+            try {
+                searchResults.innerHTML = `
+                    <div class="loading">
+                        <div class="loading-spinner"></div>
+                        <p>Loading dictionary...</p>
+                    </div>
+                `;
+                const response = await fetch('words.json');
+                if (!response.ok) {
+                    throw new Error('Failed to load dictionary');
+                }
+                dictionary = await response.json();
+                searchResults.innerHTML = '<div class="no-results">Search for a word to see results</div>';
+            } catch (error) {
+                searchResults.innerHTML = `<div class="no-results">Error: ${error.message}</div>`;
+                console.error('Error loading dictionary:', error);
+                showNotification('Failed to load dictionary', 'error');
+            }
+        }
+
+        // Search function
+        function searchDictionary(query) {
+            if (!query.trim()) {
+                searchResults.innerHTML = '<div class="no-results">Please enter a search term</div>';
+                return;
+            }
+
+            // Add to search history
+            addToHistory(query);
+
+            const normalizedQuery = query.trim().toLowerCase();
+            let results = [];
+
+            if (searchMode === 'bn-to-en') {
+                results = dictionary.filter(entry => 
+                    entry.bangla.toLowerCase().includes(normalizedQuery)
+                );
+            } else {
+                results = dictionary.filter(entry => 
+                    entry.english.toLowerCase().includes(normalizedQuery)
+                );
+            }
+
+            displayResults(results);
+        }
+
+        // Display results
+        function displayResults(results) {
+            if (results.length === 0) {
+                searchResults.innerHTML = '<div class="no-results">No matching words found</div>';
+                return;
+            }
+
+            let html = '';
+            results.forEach(entry => {
+                const word = searchMode === 'bn-to-en' ? entry.bangla : entry.english;
+                const translation = searchMode === 'bn-to-en' ? entry.english : entry.bangla;
+                const isFavorite = favorites.some(fav => 
+                    fav.bangla === entry.bangla && fav.english === entry.english
+                );
+                
+                html += `
+                    <div class="result-item" data-bangla="${entry.bangla}" data-english="${entry.english}">
+                        <div class="word">
+                            ${word}
+                            <div class="word-actions">
+                                <button class="word-action-btn tooltip speak-btn" onclick="speakWord('${word}')">
+                                    <i class="fas fa-volume-up"></i>
+                                    <span class="tooltiptext">Speak</span>
+                                </button>
+                                <button class="word-action-btn tooltip copy-btn" onclick="copyToClipboard('${word}')">
+                                    <i class="fas fa-copy"></i>
+                                    <span class="tooltiptext">Copy</span>
+                                </button>
+                                <button class="word-action-btn tooltip favorite ${isFavorite ? 'active' : ''}" onclick="toggleFavorite(this, '${entry.bangla}', '${entry.english}')">
+                                    <i class="fas fa-star"></i>
+                                    <span class="tooltiptext">${isFavorite ? 'Remove from favorites' : 'Add to favorites'}</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="translation">${translation}</div>
+                        ${entry.partOfSpeech ? `<div class="part-of-speech">${entry.partOfSpeech}</div>` : ''}
+                        ${entry.example ? `<div class="example">${entry.example}</div>` : ''}
+                    </div>
+                `;
+            });
+
+            searchResults.innerHTML = html;
+            
+            // Add staggered animation to results
+            const resultItems = searchResults.querySelectorAll('.result-item');
+            resultItems.forEach((item, index) => {
+                item.style.animationDelay = `${index * 0.1}s`;
+            });
+        }
+
+        // Display favorites
+        function displayFavorites() {
+            if (favorites.length === 0) {
+                favoritesResults.innerHTML = '<div class="empty-favorites">You haven\'t added any favorites yet</div>';
+                return;
+            }
+
+            let html = '';
+            favorites.forEach(entry => {
+                html += `
+                    <div class="result-item" data-bangla="${entry.bangla}" data-english="${entry.english}">
+                        <div class="word">
+                            ${entry.bangla}
+                            <div class="word-actions">
+                                <button class="word-action-btn tooltip speak-btn" onclick="speakWord('${entry.bangla}')">
+                                    <i class="fas fa-volume-up"></i>
+                                    <span class="tooltiptext">Speak</span>
+                                </button>
+                                <button class="word-action-btn tooltip copy-btn" onclick="copyToClipboard('${entry.bangla}')">
+                                    <i class="fas fa-copy"></i>
+                                    <span class="tooltiptext">Copy</span>
+                                </button>
+                                <button class="word-action-btn tooltip favorite active" onclick="toggleFavorite(this, '${entry.bangla}', '${entry.english}')">
+                                    <i class="fas fa-star"></i>
+                                    <span class="tooltiptext">Remove from favorites</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="translation">${entry.english}</div>
+                        ${entry.partOfSpeech ? `<div class="part-of-speech">${entry.partOfSpeech}</div>` : ''}
+                        ${entry.example ? `<div class="example">${entry.example}</div>` : ''}
+                    </div>
+                `;
+            });
+
+            favoritesResults.innerHTML = html;
+            
+            // Add staggered animation to results
+            const resultItems = favoritesResults.querySelectorAll('.result-item');
+            resultItems.forEach((item, index) => {
+                item.style.animationDelay = `${index * 0.1}s`;
+            });
+        }
+
+        // Toggle search mode
+        function toggleSearchMode(mode) {
+            searchMode = mode;
+            if (mode === 'bn-to-en') {
+                bnToEnButton.classList.add('active');
+                enToBnButton.classList.remove('active');
+                searchInput.placeholder = 'Type a Bangla word...';
+            } else {
+                enToBnButton.classList.add('active');
+                bnToEnButton.classList.remove('active');
+                searchInput.placeholder = 'Type an English word...';
+            }
+            
+            // Clear results when switching modes
+            searchResults.innerHTML = '<div class="no-results">Search for a word to see results</div>';
+            searchInput.value = '';
+            searchInput.focus();
+        }
+
+        // Add to search history
+        function addToHistory(query) {
+            // Remove if already exists
+            searchHistory = searchHistory.filter(item => item !== query);
+            
+            // Add to beginning of array
+            searchHistory.unshift(query);
+            
+            // Limit to 10 items
+            if (searchHistory.length > 10) {
+                searchHistory.pop();
+            }
+            
+            // Save to localStorage
+            saveToLocalStorage();
+            
+            // Update UI
+            renderHistoryTags();
+        }
+
+        // Render history tags
+        function renderHistoryTags() {
+            if (searchHistory.length === 0) {
+                historyTags.innerHTML = '<span style="color: var(--text-light);">No recent searches</span>';
+                return;
+            }
+            
+            let html = '';
+            searchHistory.forEach(query => {
+                html += `
+                    <button class="history-tag" onclick="searchFromHistory('${query}')">
+                        ${query}
+                        <i class="fas fa-times" onclick="removeFromHistory(event, '${query}')"></i>
+                    </button>
+                `;
+            });
+            
+            historyTags.innerHTML = html;
+        }
+
+        // Search from history
+        function searchFromHistory(query) {
+            searchInput.value = query;
+            searchDictionary(query);
+        }
+
+        // Remove from history
+        function removeFromHistory(event, query) {
+            event.stopPropagation();
+            searchHistory = searchHistory.filter(item => item !== query);
+            saveToLocalStorage();
+            renderHistoryTags();
+        }
+
+        // Clear all history
+        function clearHistory() {
+            searchHistory = [];
+            saveToLocalStorage();
+            renderHistoryTags();
+            showNotification('Search history cleared', 'info');
+        }
+
+        // Toggle favorite
+        function toggleFavorite(button, bangla, english) {
+            const isFavorite = button.classList.contains('active');
+            
+            if (isFavorite) {
+                // Remove from favorites
+                favorites = favorites.filter(fav => 
+                    !(fav.bangla === bangla && fav.english === english)
+                );
+                button.classList.remove('active');
+                button.querySelector('.tooltiptext').textContent = 'Add to favorites';
+                showNotification('Removed from favorites', 'info');
+            } else {
+                // Add to favorites
+                const entry = dictionary.find(item => 
+                    item.bangla === bangla && item.english === english
+                );
+                
+                if (entry) {
+                    favorites.push(entry);
+                    button.classList.add('active');
+                    button.querySelector('.tooltiptext').textContent = 'Remove from favorites';
+                    showNotification('Added to favorites');
+                }
+            }
+            
+            saveToLocalStorage();
+            
+            // Update favorites tab if it's active
+            if (favoritesTab.classList.contains('active')) {
+                displayFavorites();
+            }
+        }
+
+        // Speak word using text-to-speech
+        function speakWord(word) {
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(word);
+                window.speechSynthesis.speak(utterance);
+            } else {
+                showNotification('Text-to-speech not supported in your browser', 'error');
+            }
+        }
+
+        // Copy to clipboard
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text)
+                .then(() => {
+                    showNotification('Copied to clipboard');
+                })
+                .catch(err => {
+                    showNotification('Failed to copy text', 'error');
+                    console.error('Could not copy text: ', err);
+                });
+        }
+
+        // Show notification
+        function showNotification(message, type = 'success') {
+            notificationMessage.textContent = message;
+            notification.className = 'notification';
+            
+            if (type === 'error') {
+                notification.classList.add('error');
+            } else if (type === 'info') {
+                notification.classList.add('info');
+            }
+            
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // Toggle theme
+        function toggleTheme() {
+            isDarkMode = !isDarkMode;
+            
+            if (isDarkMode) {
+                document.body.classList.add('dark');
+                themeIcon.classList.remove('fa-moon');
+                themeIcon.classList.add('fa-sun');
+            } else {
+                document.body.classList.remove('dark');
+                themeIcon.classList.remove('fa-sun');
+                themeIcon.classList.add('fa-moon');
+            }
+            
+            saveToLocalStorage();
+        }
+
+        // Switch tabs
+        function switchTab(tabName) {
+            if (tabName === 'search') {
+                searchTab.classList.add('active');
+                favoritesTab.classList.remove('active');
+                searchResults.classList.add('active');
+                favoritesResults.classList.remove('active');
+            } else {
+                searchTab.classList.remove('active');
+                favoritesTab.classList.add('active');
+                searchResults.classList.remove('active');
+                favoritesResults.classList.add('active');
+                displayFavorites();
+            }
+        }
+
+        // Event listeners
+        searchButton.addEventListener('click', () => {
+            searchDictionary(searchInput.value);
+        });
+
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                searchDictionary(searchInput.value);
+            }
+        });
+
+        bnToEnButton.addEventListener('click', () => {
+            toggleSearchMode('bn-to-en');
+        });
+
+        enToBnButton.addEventListener('click', () => {
+            toggleSearchMode('en-to-bn');
+        });
+
+        themeToggle.addEventListener('click', toggleTheme);
+
+        clearHistoryButton.addEventListener('click', clearHistory);
+
+        searchTab.addEventListener('click', () => {
+            switchTab('search');
+        });
+
+        favoritesTab.addEventListener('click', () => {
+            switchTab('favorites');
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchDictionary();
+            loadFromLocalStorage();
+            searchInput.focus();
+        });
+    </script>
+</body>
+</html>
